@@ -1,0 +1,142 @@
+import requests, json
+__Vehicles={}
+cont = 0
+def addVehicle(Plate,Description,Chasis,DriverName):
+        if checkPlate(Plate):
+            if checkChasis(Chasis):
+                if Plate in __Vehicles:
+                    print("This plate already exists")
+                    return False
+                else:
+                    vehicle = (Plate,Description,Chasis,DriverName)
+                    __Vehicles[Plate] = vehicle
+                    print(__Vehicles[Plate])
+                    return True
+            else:
+                return False
+        else:
+            return False
+
+def delVehicle(Plate):
+        if checkPlate(Plate):
+            if Plate in __Vehicles:
+                __Vehicles.pop(Plate)
+                return True
+            else:
+                return False
+        else:
+            return False
+
+def checkPlate(Plate):
+        if Plate[0:4].isdigit() and len(Plate)==7:
+            if Plate[4].isdigit() and Plate[5].isdigit() and Plate[6].isdigit():
+                return False
+            else:
+                return True
+        else:
+            return False
+
+def checkChasis(Chasis):
+        if Chasis.isdigit() and len(Chasis)==17:
+            return True
+        else:
+            return False
+
+def addodumetter(Plate,data,city1,city2,distacep):
+        if checkPlate(Plate):
+            tupp=(city1,city2,distacep)
+            __Vehicles[Plate].addOdumeter(data,tupp)
+            return True
+        else:
+            return False
+
+def confirmodumetter(Plate,data):
+        if checkPlate(Plate):
+            __Vehicles[Plate].confirmOdumeter(data)
+            return True
+        else:
+            return False
+
+def printlist(search):
+        i=1
+        while(i<len(__Vehicles)):
+            if(__Vehicles[i]["plate"] == search):
+                return __Vehicles
+            elif(__Vehicles[i]["driverName"] == search):
+                return __Vehicles[i]
+            i+=1
+        return False
+
+def distace():
+    url = "https://distanceto.p.rapidapi.com/get"
+
+    source = "Valencia"
+    dest = "Madrid"
+    querystring = {"route":"[{\"t\":\""+source+"\",\"c\":\"ES\"},{\"t\":\""+dest+"\",\"c\":\"ES\"}]","car":"true"}
+
+    headers = {
+        'x-rapidapi-host': "distanceto.p.rapidapi.com",
+       'x-rapidapi-key': "a365ad1a8cmsh8c4907a923c8b44p1ddecajsn2ec4d759c257"
+        }
+
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    if response.ok:
+        data = dict(json.loads(response.text))
+    return data['steps'][0]['distance']['car']['distance']
+
+while (True):
+    print("\n1.- Add Vehicle")
+    print("2.- Delete Vehicle")
+    print("3.- Add odometer for a driver")
+    print("4.- Confirm odometer for a driver")
+    print("5.- List Vehicle Details")
+    print("6.- Exit")
+    txt=input("Input the option: ")
+
+    if txt=="1":
+        Plate=input("\nInput the palte of the vehicle: ")
+        Description=input("Input the description of the vehicle: ")
+        Chasis=input("Input the chasis of the vehicle: ")
+        DriverName=input("Input the driverName of the vehicle: ")
+        if addVehicle(Plate,Description,Chasis,DriverName):
+            cont+=1
+            print("The vehicle is correcly added")
+        else:
+            print("This vehicle its alredy exist or a parameter its incorrect")
+
+    if txt=="2":
+        Plate=input("\nInput the palte of the vehicle: ")
+        if delVehicle(Plate):
+            print("The vehicle is correcly deleted")
+        else:
+            print("this vehicle its not alredy exist or a parameter its incorrect")
+
+    if txt=="3":
+        Plate=input("\nImput the palte of the vehicle: ")
+        data=input("Input the data of the odometer: ")
+        city1=input("Input the first city: ") 
+        city2=input("Input the second city: ")
+        distacep=distace()/1000
+        print(distacep, " kms.")
+        if addodumetter(Plate,data,city1,city2,distacep):
+            print("Odometer added successfully!")
+        else:
+            print("This Odometer its alredy exist or a parameter its incorrect")
+
+
+    if txt=="4":
+        Plate=input("\nInput the palte of the vehicle: ")
+        data=input("Input the data of the odometer: ")
+        if confirmodumetter(Plate,data):
+            print("Odometer confirmed successfully!")
+        else:
+            print("This Odometer its alredy exist or a parameter its incorrect")
+
+    if txt=="5":
+        search = input("Plate or Driver name: ")
+        print(printlist(search))
+
+
+    if txt=="6":
+        print("BYE! Thanks for using our app!")
+        break

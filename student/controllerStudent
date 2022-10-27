@@ -1,0 +1,12 @@
+from student import Student
+
+class ControllerStudent:
+
+    def __init__(self):
+        self.__students = {}
+
+    def addStudent(self, dni, name, surnames, age, city, province, email):
+        if dni in self.__students:
+            return False
+        else:
+            newStudent = Student(name, surnames, age, city, province, email)
